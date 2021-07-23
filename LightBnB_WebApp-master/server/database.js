@@ -1,6 +1,22 @@
 const properties = require('./json/properties.json');
 const users = require('./json/users.json');
+const { Pool } = require('../node_modules/pg');
 
+const pool = new Pool({
+  user: 'vagrant',
+  password: '123',
+  host: 'localhost',
+  database: 'lightbnb',
+  port: 5432
+})
+
+pool.connect()
+  .then(() => {
+    console.log("Successful connection!");
+  })
+  .catch(e => {
+    console.log('Connection error: ', e.message);
+  })
 /// Users
 
 /**
@@ -65,7 +81,7 @@ exports.getAllReservations = getAllReservations;
  * @param {{}} options An object containing query options.
  * @param {*} limit The number of results to return.
  * @return {Promise<[{}]>}  A promise to the properties.
- */
+
 const getAllProperties = function(options, limit = 10) {
   const limitedProperties = {};
   for (let i = 1; i <= limit; i++) {
@@ -73,7 +89,27 @@ const getAllProperties = function(options, limit = 10) {
   }
   return Promise.resolve(limitedProperties);
 }
-exports.getAllProperties = getAllProperties;
+*/
+// const getAllProperties = (options, limit = 10) => {
+  //   return pool
+  //     .query(
+    //       `SELECT * FROM properties LIMIT $1`, [limit])
+    //     .then((result) => result.rows)
+    //     .catch((err) => err.message);
+    //   };
+    
+    const getAllProperties = (options, limit = 10) => {
+      return pool
+      .query(`SELECT * FROM properties LIMIT $1`, [limit])
+      .then((result) => {
+        console.log(result.rows);
+        return result.rows;
+      })
+      .catch((err) => {
+        console.log(err.message);
+      });
+    };
+    exports.getAllProperties = getAllProperties;
 
 
 /**
